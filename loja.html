@@ -1,0 +1,2700 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráfica ZAMUMBA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* Reset e configurações gerais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Cabeçalho e navegação */
+        header {
+            background:#0e1b2d;
+            color: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            color: #FFCD00;
+            margin-right: 10px;
+        }
+        
+        .currency-info {
+            font-size: 0.9rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-left: 15px;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 25px;
+            position: relative;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 8px 12px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        nav ul li a:hover {
+            color: #ddbb33;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .cart-icon {
+            position: relative;
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #009739;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        
+        /* Revolutionary Carousel */
+        .carousel-container {
+            max-width: 1400px;
+            margin: 50px auto;
+            padding: 0 30px;
+            position: relative;
+        }
+
+        .carousel {
+            position: relative;
+            overflow: hidden;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            height: 500px;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+            height: 100%;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .carousel-slide:hover img {
+            transform: scale(1.05);
+        }
+
+        /* Revolutionary Picture-in-Picture Effect */
+        .pip-container {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 200px;
+            height: 120px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 3px solid white;
+            opacity: 0;
+            transform: translateY(20px) scale(0.8);
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .carousel-slide:hover .pip-container {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .pip-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .carousel-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            padding: 40px;
+            color: white;
+        }
+
+        .carousel-overlay h2 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .carousel-overlay p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .carousel-nav {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .carousel-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid white;
+        }
+
+        .carousel-dot.active {
+            background: white;
+            width: 40px;
+            border-radius: 6px;
+        }
+
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .carousel-arrow:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-arrow.prev {
+            left: 20px;
+        }
+
+        .carousel-arrow.next {
+            right: 20px;
+        }
+
+        
+        /* Sistema de Vendas */
+        .sales-system {
+            padding: 60px 0;
+            background-color: white;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #0e1b2d;
+            font-size: 2.2rem;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: #ddbb33;
+        }
+        
+        /* Filtros de produtos */
+        .product-filters {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        
+        .filter-btn {
+            padding: 10px 25px;
+            background-color: #f0f4f8;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background-color: #0e1b2d;
+            color: white;
+        }
+        
+        .filter-btn:hover {
+            background-color: #0e1b2d;
+            color: white;
+        }
+        
+        /* Catálogo de produtos */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .product-card {
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            border: 1px solid #eee;
+             border-top: 3px solid #c8c8c8;
+            border-bottom: 3px solid #c8c8c8;
+            border-left: 3px solid #c8c8c8;
+            border-right: 3px solid #c8c8c8;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .product-image {
+            height: 200px;
+            width: 100%;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .product-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+        
+        .product-details {
+            padding: 20px;
+        }
+        
+        .product-category {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        
+        .product-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #0e1b2d;
+        }
+        
+        .product-description {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ddbb33;
+            margin-bottom: 15px;
+        }
+        
+        .product-price span {
+            font-size: 0.9rem;
+            color: #666;
+            margin-left: 5px;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-add-to-cart, .btn-quick-view {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-add-to-cart {
+            background-color: #0e1b2d;
+            color: white;
+        }
+        
+        .btn-add-to-cart:hover {
+            background-color: #ddbb33;
+            color: #333;
+        }
+        
+        .btn-quick-view {
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        
+        .btn-quick-view:hover {
+            background-color: #e0e6ed;
+        }
+        
+        /* Carrinho de Compras (Sidebar) */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100%;
+            background-color: white;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .cart-sidebar.active {
+            right: 0;
+        }
+        
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            background-color: #0e1b2d;
+            color: white;
+        }
+        
+        .cart-header h3 {
+            margin: 0;
+        }
+        
+        .close-cart {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .cart-item {
+            display: flex;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .cart-item-image img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        .cart-item-details {
+            flex: 1;
+        }
+        
+        .cart-item-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .cart-item-price {
+            color: #ddbb33;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            background-color: #f0f4f8;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .quantity {
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .remove-item {
+            background: none;
+            border: none;
+            color: #ff0000;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        .cart-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+        
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #fecb00;
+        }
+        
+        .cart-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-checkout, .btn-clear-cart, .btn-print-receipt {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-checkout {
+            background-color: #009739;
+            color: white;
+        }
+        
+        .btn-checkout:hover {
+            background-color: #007A2F;
+        }
+        
+        .btn-clear-cart {
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        
+        .btn-clear-cart:hover {
+            background-color: #e0e6ed;
+        }
+        
+        .btn-print-receipt {
+            background-color: #0066B3;
+            color: white;
+        }
+        
+        .btn-print-receipt:hover {
+            background-color: #005599;
+        }
+        
+        /* Modal de Checkout */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            animation: modalAppear 0.5s;
+        }
+        
+        @keyframes modalAppear {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .checkout-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .checkout-steps::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #ddd;
+            z-index: 1;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            background-color: white;
+            padding: 0 10px;
+        }
+        
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #ddd;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .step.active .step-circle {
+            background-color: #0e1b2d;
+            color: white;
+        }
+        
+        .step.completed .step-circle {
+            background-color: #009739;
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .step.active .step-label {
+            color: #0e1b2d;
+            font-weight: 600;
+        }
+        
+        .checkout-form {
+            margin-bottom: 30px;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+             border-top: 3px solid #c8c8c8;
+            border-bottom: 3px solid #c8c8c8;
+            border-left: 3px solid #c8c8c8;
+            border-right: 3px solid #c8c8c8;
+        }
+        
+        .form-section h3 {
+            color: #0e1b2d;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #0e1b2d;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0e1b2d;
+            box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.1);
+        }
+        
+        .checkout-summary {
+            background-color: #f0f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #ddd;
+            color: #0e1b2d;
+        }
+        
+        .payment-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .payment-option {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .payment-option input {
+            display: none;
+        }
+        
+        .payment-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .payment-option input:checked + label {
+            border-color: #0e1b2d;
+            background-color: rgba(200, 16, 46, 0.05);
+        }
+        
+        .payment-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #0e1b2d;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .btn-prev, .btn-next, .btn-confirm {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-prev {
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        
+        .btn-prev:hover {
+            background-color: #e0e6ed;
+        }
+        
+        .btn-next, .btn-confirm {
+            background-color: #0e1b2d;
+            color: white;
+        }
+        
+        .btn-next:hover, .btn-confirm:hover {
+            background-color: #ddbb33;
+            color: #333;
+        }
+        
+        /* Recibo */
+        .receipt-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #0e1b2d;
+            padding-bottom: 20px;
+        }
+        
+        .receipt-header h2 {
+            color: #0e1b2d;
+            margin-bottom: 10px;
+        }
+        
+        .receipt-info {
+            margin-bottom: 30px;
+        }
+        
+        .receipt-info .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .receipt-info .label {
+            font-weight: 600;
+            color: #0e1b2d;
+        }
+        
+        .receipt-items {
+            margin-bottom: 30px;
+        }
+        
+        .receipt-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .receipt-table th {
+            background-color: #f0f4f8;
+            padding: 12px;
+            text-align: left;
+            color: #0e1b2d;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .receipt-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .receipt-total {
+            text-align: right;
+            margin-top: 30px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0e1b2d;
+        }
+        
+        .receipt-footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .receipt-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn-print, .btn-pdf, .btn-close-receipt {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-print {
+            background-color: #0e1b2d;
+            color: white;
+        }
+        
+        .btn-print:hover {
+            background-color: #ddbb33;
+            color: #333;
+        }
+        
+        .btn-pdf {
+            background-color: #0066B3;
+            color: white;
+        }
+        
+        .btn-pdf:hover {
+            background-color: #005599;
+        }
+        
+        .btn-close-receipt {
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        
+        .btn-close-receipt:hover {
+            background-color: #e0e6ed;
+        }
+         /* Rodapé */
+        footer {
+            background: #0e1b2d;
+            color: white;
+            padding: 40px 0 20px;
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 40px;
+        }
+
+        .footer-column {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #ddbb33;
+        }
+
+        .footer-column p,
+        .footer-column li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column ul li a:hover {
+            color: #ddbb33;
+            text-decoration: underline;
+        }
+
+        .contact-info li {
+            display: flex;
+            align-items: center;
+        }
+
+        .contact-info li i {
+            margin-right: 10px;
+            color: #ddbb33;
+            width: 20px;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                width: 100%;
+                margin-top: 15px;
+                display: none;
+            }
+            
+            nav ul.active {
+                display: flex;
+            }
+            
+            nav ul li {
+                margin: 8px 0;
+                margin-left: 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+                position: absolute;
+                top: 15px;
+                right: 15px;
+            }
+            
+            .slide-content {
+                left: 20px;
+                right: 20px;
+                bottom: 40px;
+                max-width: 100%;
+                padding: 15px;
+            }
+            
+            .cart-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .form-group {
+                min-width: 100%;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .cart-actions {
+                flex-direction: column;
+            }
+            
+            .receipt-actions {
+                flex-direction: column;
+            }
+        }
+        
+        /* Overlay para quando o carrinho estiver aberto */
+        .cart-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        
+        .cart-overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Cabeçalho com navegação -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <!--i class="fas fa-print"></i-->
+                <span>Gráfica ZAMUMBA</span>
+            </div>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="index.html"><!--i class="fas fa-home"></i--> Início</a></li>
+                    <li><a href="loja.html"><!--i class="fas fa-shopping-bag"></i--> Produtos</a></li>
+                    <li><a href="servico.html"><!--i class="fas fa-concierge-bell"></i--> Serviços</a></li>
+                    <li><a href="contacto.html"><!--i class="fas fa-tshirt"></i--> Contactos</a></li>
+                    <li class="cart-icon">
+                        <a href="#" id="openCart">
+                            <!--i class="fas fa-shopping-cart"></i--> Carrinho
+                            <span class="cart-count" id="cartCount">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <!-- Revolutionary Carousel with PIP -->
+    <div class="carousel-container">
+        <div class="carousel">
+            <button class="carousel-arrow prev" onclick="prevSlide()">‹</button>
+            <button class="carousel-arrow next" onclick="nextSlide()">›</button>
+
+            <div class="carousel-track" id="carouselTrack">
+                <div class="carousel-slide">
+                    <img src="imag/pr.jpg" alt="Edifício Moderno">
+                    <div class="carousel-overlay">
+                        <h2>Soluções Empresariais</h2>
+                        <p>Transformando negócios com inovação e tecnologia</p>
+                    </div>
+                </div>
+
+                <div class="carousel-slide">
+                    <img src="imag/a4.jpg" alt="Equipe Trabalhando">
+                    <div class="carousel-overlay">
+                        <h2>Equipe Especializada</h2>
+                        <p>Profissionais dedicados ao seu sucesso</p>
+                    </div>
+                </div>
+
+                <div class="carousel-slide">
+                    <img src="imag/488206464_9221886881243453_6824834946973586528_n.jpg" alt="Tecnologia">
+                    <div class="carousel-overlay">
+                        <h2>Tecnologia Avançada</h2>
+                        <p>Inovação que impulsiona resultados</p>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="imag/487947724_9221886654576809_8040665754248596378_n.jpg" alt="Negócios">
+                    <div class="carousel-overlay">
+                        <h2>Resultados Comprovados</h2>
+                        <p>Excelência em cada projeto entregue</p>
+                    </div>
+                </div>
+                <div class="carousel-slide">
+                    <img src="imag/487823462_9221886681243473_8538459000998584485_n.jpg" alt="Tecnologia">
+                    <div class="carousel-overlay">
+                        <h2>Tecnologia emiliano Avançada</h2>
+                        <p>Inovação que impulsiona resultados</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="carousel-nav">
+                <div class="carousel-dot active" onclick="goToSlide(0)"></div>
+                <div class="carousel-dot" onclick="goToSlide(1)"></div>
+                <div class="carousel-dot" onclick="goToSlide(2)"></div>
+                <div class="carousel-dot" onclick="goToSlide(3)"></div>
+                <div class="carousel-dot" onclick="goToSlide(4)"></div>
+            </div>
+        </div>
+    </div>
+   
+
+    <!-- Sistema de Vendas -->
+    <section class="sales-system" id="products">
+        <div class="container">
+            <h2 class="section-title">Nossos Produtos</h2>
+            
+            <!-- Filtros de produtos -->
+            <div class="product-filters">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="timbragem">Timbragem</button>
+                <button class="filter-btn" data-filter="papelaria">Papelaria</button>
+                <button class="filter-btn" data-filter="servicos">Serviços</button>
+                <button class="filter-btn" data-filter="design">Design</button>
+            </div>
+            
+            <!-- Catálogo de produtos -->
+            <div class="products-grid" id="productsGrid">
+                <!-- Os produtos serão carregados via JavaScript -->
+            </div>
+            
+            <!-- Informações de pagamento -->
+            <div style="text-align: center; margin-top: 40px; padding: 30px; background-color: #f0f4f8; border-radius: 10px;">
+                <h3 style="color: #0e1b2d; margin-bottom: 15px;">Formas de Pagamento</h3>
+                <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 30px; margin-top: 20px;">
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-money-bill-wave" style="font-size: 2rem; color: #009739; margin-right: 10px;"></i>
+                        <span>Dinheiro</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-mobile-alt" style="font-size: 2rem; color: #0066B3; margin-right: 10px;"></i>
+                        <span>Transferência</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-qrcode" style="font-size: 2rem; color: #0e1b2d; margin-right: 10px;"></i>
+                        <span>PIX Angola</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Carrinho de Compras (Sidebar) -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3><i class="fas fa-shopping-cart"></i> Seu Carrinho</h3>
+            <button class="close-cart" id="closeCart">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="cart-items" id="cartItems">
+            <!-- Itens do carrinho serão carregados aqui -->
+            <div style="text-align: center; padding: 40px 20px; color: #666;">
+                <i class="fas fa-shopping-cart" style="font-size: 3rem; margin-bottom: 20px; color: #ddd;"></i>
+                <p>Seu carrinho está vazio</p>
+            </div>
+        </div>
+        
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">Kz 0,00</span>
+            </div>
+            <div class="cart-actions">
+                <button class="btn-clear-cart" id="clearCart">Limpar Carrinho</button>
+                <button class="btn-print-receipt" id="printReceiptBtn">Imprimir Recibo</button>
+                <button class="btn-checkout" id="checkoutBtn">Finalizar Compra</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Checkout -->
+    <div class="modal" id="checkoutModal">
+        <div class="modal-content">
+            <!-- Passos do checkout -->
+            <div class="checkout-steps">
+                <div class="step active" id="step1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Informações</div>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Pagamento</div>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Confirmação</div>
+                </div>
+            </div>
+            
+            <!-- Formulário de checkout -->
+            <form id="checkoutForm">
+                <!-- Passo 1: Informações pessoais -->
+                <div class="checkout-form" id="checkoutStep1">
+                    <div class="form-section">
+                        <h3><i class="fas fa-user"></i> Informações Pessoais</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customerName">Nome Completo *</label>
+                                <input type="text" id="customerName" name="customerName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="customerEmail">E-mail *</label>
+                                <input type="email" id="customerEmail" name="customerEmail" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customerPhone">Telefone/WhatsApp *</label>
+                                <input type="tel" id="customerPhone" name="customerPhone" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="customerNIF">NIF (opcional)</label>
+                                <input type="text" id="customerNIF" name="customerNIF" placeholder="Ex: 123456789LA123">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3><i class="fas fa-truck"></i> Entrega</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Método de Entrega *</label>
+                                <select id="deliveryMethod" name="deliveryMethod" required>
+                                    <option value="" selected disabled>Selecione</option>
+                                    <option value="retirada">Retirada na Loja</option>
+                                    <option value="entrega_luanda">Entrega (Luanda) +Kz 1.000</option>
+                                    <option value="entrega_outra">Entrega (Outra Província) - Consultar</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="deliveryAddressSection" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="address">Endereço *</label>
+                                    <input type="text" id="address" name="address">
+                                </div>
+                                <div class="form-group">
+                                    <label for="addressNumber">Número *</label>
+                                    <input type="text" id="addressNumber" name="addressNumber">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="bairro">Bairro *</label>
+                                    <input type="text" id="bairro" name="bairro">
+                                </div>
+                                <div class="form-group">
+                                    <label for="municipio">Município *</label>
+                                    <input type="text" id="municipio" name="municipio">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="provincia">Província *</label>
+                                    <input type="text" id="provincia" name="provincia">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn-prev" disabled>Voltar</button>
+                        <button type="button" class="btn-next" id="nextStep1">Próximo</button>
+                    </div>
+                </div>
+                
+                <!-- Passo 2: Pagamento -->
+                <div class="checkout-form" id="checkoutStep2" style="display: none;">
+                    <div class="form-section">
+                        <h3><i class="fas fa-credit-card"></i> Método de Pagamento</h3>
+                        
+                        <div class="payment-options">
+                            <div class="payment-option">
+                                <input type="radio" id="paymentDinheiro" name="paymentMethod" value="dinheiro" checked>
+                                <label for="paymentDinheiro">
+                                    <div class="payment-icon">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </div>
+                                    <div>Dinheiro</div>
+                                    <small>Na retirada/entrega</small>
+                                </label>
+                            </div>
+                            
+                            <div class="payment-option">
+                                <input type="radio" id="paymentTransferencia" name="paymentMethod" value="transferencia">
+                                <label for="paymentTransferencia">
+                                    <div class="payment-icon">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                    <div>Transferência</div>
+                                    <small>Bancária</small>
+                                </label>
+                            </div>
+                            
+                            <div class="payment-option">
+                                <input type="radio" id="paymentPix" name="paymentMethod" value="pix">
+                                <label for="paymentPix">
+                                    <div class="payment-icon">
+                                        <i class="fas fa-qrcode"></i>
+                                    </div>
+                                    <div>PIX Angola</div>
+                                    <small>Pagamento instantâneo</small>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="bankInfo" style="display: none; margin-top: 20px; padding: 15px; background-color: #f0f4f8; border-radius: 5px;">
+                            <h4 style="color: #0e1b2d; margin-bottom: 10px;">Dados Bancários:</h4>
+                            <p><strong>Banco:</strong> BAI</p>
+                            <p><strong>Conta:</strong> 1234567890</p>
+                            <p><strong>IBAN:</strong> AO06 0051 0000 1234 5678 9012 3</p>
+                            <p><strong>Titular:</strong>Gráfica ZAMUMBA, Lda</p>
+                            <p><strong>NIF:</strong> 541234567LA001</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Resumo do pedido -->
+                    <div class="checkout-summary">
+                        <h3 style="margin-bottom: 15px;">Resumo do Pedido</h3>
+                        <div id="orderSummary">
+                            <!-- Resumo será preenchido via JavaScript -->
+                        </div>
+                        <div class="summary-total">
+                            <span>Total:</span>
+                            <span id="orderTotal">Kz 0,00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn-prev" id="prevStep2">Voltar</button>
+                        <button type="button" class="btn-next" id="nextStep2">Próximo</button>
+                    </div>
+                </div>
+                
+                <!-- Passo 3: Confirmação -->
+                <div class="checkout-form" id="checkoutStep3" style="display: none;">
+                    <div class="confirmation">
+                        <h3>Confirmação de Pedido</h3>
+                        <p>Revise seus dados antes de finalizar o pedido</p>
+                        
+                        <div class="order-details">
+                            <h4>Detalhes do Pedido</h4>
+                            <div id="orderDetails">
+                                <!-- Detalhes serão preenchidos via JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3><i class="fas fa-comment"></i> Observações</h3>
+                            <div class="form-group">
+                                <label for="orderNotes">Alguma observação sobre seu pedido? (opcional)</label>
+                                <textarea id="orderNotes" name="orderNotes" rows="3" placeholder="Ex: Horário preferencial para retirada, detalhes sobre personalização, etc."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn-prev" id="prevStep3">Voltar</button>
+                        <button type="button" class="btn-confirm" id="confirmOrder">Confirmar Pedido</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Recibo -->
+    <div class="modal" id="receiptModal">
+        <div class="modal-content">
+            <div class="receipt-container" id="receiptContent">
+                <!-- Conteúdo do recibo será gerado aqui -->
+            </div>
+            
+            <div class="receipt-actions">
+                <button class="btn-print" id="printReceipt">
+                    <i class="fas fa-print"></i> Imprimir Recibo
+                </button>
+                <button class="btn-pdf" id="downloadPDF">
+                    <i class="fas fa-file-pdf"></i> Baixar PDF
+                </button>
+                <button class="btn-close-receipt" id="closeReceipt">
+                    <i class="fas fa-times"></i> Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmação final -->
+    <div class="modal" id="finalConfirmationModal">
+        <div class="modal-content">
+            <div class="confirmation">
+                <div class="confirmation-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>Pedido Confirmado!</h3>
+                <p>Seu pedido foi recebido com sucesso.</p>
+                
+                <div class="order-details">
+                    <h4>Número do Pedido: <span id="orderNumber">#0001</span></h4>
+                    <p>Em breve entraremos em contato para confirmar os detalhes.</p>
+                    <p>Você receberá uma confirmação por WhatsApp e e-mail.</p>
+                </div>
+                
+                <div class="modal-actions" style="justify-content: center; margin-top: 30px;">
+                    <button type="button" class="btn-confirm" id="closeFinalModal">Fechar</button>
+                    <button type="button" class="btn-next" id="openWhatsAppOrder">
+                        <i class="fab fa-whatsapp"></i> Falar no WhatsApp
+                    </button>
+                    <button type="button" class="btn-pdf" id="viewReceiptFinal">
+                        <i class="fas fa-receipt"></i> Ver Recibo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Rodapé com informações de contato -->
+    <footer id="contact">
+        <div class="container footer-container">
+            <div class="footer-column">
+                <h3>Gráfica ZAMUMBA</h3>
+                <p>Sua gráfica e cyber copiadora completa. Oferecemos serviços de impressão, timbragem personalizada,
+                    design gráfico e muito mais com qualidade e agilidade.</p>
+                <div style="margin-top: 15px;">
+                    <a href="#" style="color: #ffcc00; margin-right: 15px;"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" style="color: #ffcc00; margin-right: 15px;"><i class="fab fa-facebook"></i></a>
+                    <a href="#" style="color: #ffcc00;"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h3>Contato</h3>
+                <ul class="contact-info">
+                    <li><i class="fas fa-map-marker-alt"></i> Gabela ,Bairro Ilha - Shell</li>
+                    <li><i class="fas fa-phone"></i>927 368 335/928 488 139</li>
+                    <li><i class="fas fa-envelope"></i> matiasfrancisco1988@gmail.com</li>
+                    <li><i class="fas fa-clock"></i> Seg-Sex: 8h-19h | Sáb: 9h-13h</li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Links Rápidos</h3>
+                <ul>
+                     <li><a href="index.html">Início</a></li>
+                    <li><a href="servico.html">Serviços</a></li>
+                    <li><a href="servico.html#stamping">Timbragem</a></li>
+                    <li><a href="#booking">Reservas</a></li>
+                    <li><a href="contacto.html">Contactos</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="copyright">
+            <p>&copy; ZAMUMBA - Gráfica, Cyber Copiadora & Timbragem. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+    <script>
+          //carrocel
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.carousel-slide');
+            const dots = document.querySelectorAll('.carousel-dot');
+            const track = document.getElementById('carouselTrack');
+
+            function updateCarousel() {
+                track.style.transform = `translateX(-${currentSlide * 100}%)`;
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentSlide);
+                });
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                updateCarousel();
+            }
+
+            function prevSlide() {
+                currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+                updateCarousel();
+            }
+
+            function goToSlide(index) {
+                currentSlide = index;
+                updateCarousel();
+            }
+
+            // Auto-play carousel
+            setInterval(nextSlide, 5000);
+
+        // ========== SISTEMA DE VENDAS - DADOS ==========
+        
+        // Catálogo de produtos em Kwanza (Kz)
+        const products = [
+            {
+                id: 1,
+                name: "Camiseta Personalizada",
+                category: "timbragem",
+                price: 2500,
+                description: "Camiseta 100% algodão com estampa personalizada",
+                image: "imag/images (3).jpg",//caminho da imagem
+                sizes: ["P", "M", "G", "GG"],
+                colors: ["Branco", "Preto", "Cinza", "Vermelho"]
+            },
+            {
+                id: 2,
+                name: "Caneca Personalizada",
+                category: "timbragem",
+                price: 1800,
+                description: "Caneca de cerâmica 300ml com design exclusivo",
+                image: "imag/canecas.jpg",//caminho da imagem
+                capacity: "300ml"
+            },
+            {
+                id: 3,
+                name: "Impressão Colorida A4",
+                category: "servicos",
+                price: 100,
+                description: "Impressão colorida em papel A4 90g",
+                image: "imag/a4cor.png",//caminho da imagem
+                perPage: true
+            },
+            {
+                id: 4,
+                name: "Cópias Preto e Branco",
+                category: "servicos",
+                price: 25,
+                description: "Cópia em preto e branco em papel A4",
+                image: "imag/a4preto.png",//caminho da imagem
+                perPage: true
+            },
+            {
+                id: 5,
+                name: "Encadernação Espiral",
+                category: "servicos",
+                price: 800,
+                description: "Encadernação com espiral plástico",
+                image: "imag/espi.jpg",//caminho da imagem
+                perItem: true
+            },
+            {
+                id: 6,
+                name: "Cartão de Visita",
+                category: "papelaria",
+                price: 3500,
+                description: "100 cartões de visita, papel couchê 300g",
+                image: "imag/convite.jpg",//caminho da imagem
+                quantity: 100
+            },
+            {
+                id: 7,
+                name: "Flyer A5",
+                category: "papelaria",
+                price: 6000,
+                description: "100 flyers coloridos, papel couchê 150g",
+                image: "imag/flyer1.jpg",//caminho da imagem
+                quantity: 100
+            },
+            {
+                id: 8,
+                name: "Banner 1x2m",
+                category: "timbragem",
+                price: 9500,
+                description: "Banner de lona 1x2 metros",
+                image: "imag/baner.jpg",//caminho da imagem
+                size: "1x2m"
+            },
+            {
+                id: 9,
+                name: "Design de Logo",
+                category: "design",
+                price: 12000,
+                description: "Criação de logotipo personalizado",
+                image: "imag/a4.jpg",//caminho da imagem
+                service: true
+            },
+            {
+                id: 10,
+                name: "Formatação TCC",
+                category: "servicos",
+                price: 4500,
+                description: "Formatação normas ABNT para trabalhos acadêmicos",
+                image: "imag/tcc.png",//caminho da imagem
+                service: true
+            },
+            {
+                id: 11,
+                name: "Panfleto Promocional",
+                category: "papelaria",
+                price: 7500,
+                description: "500 panfletos coloridos, frente e verso",
+                image: "imag/pr.jpg",//caminho da imagem
+                quantity: 500
+            },
+            {
+                id: 12,
+                name: "Boné Personalizado",
+                category: "timbragem",
+                price: 2800,
+                description: "Boné com bordado personalizado",
+                image: "imag/bone.jpg",//caminho da imagem
+                sizes: ["Único"]
+            },
+            {
+                id: 13,
+                name: "Convite",
+                category: "papelaria",
+                price: 8500,
+                description: "100 convites premium para casamento",
+                image: "imag/convite.jpg",//caminho da imagem
+                quantity: 100
+            },
+            {
+                id: 14,
+                name: "Digitalização de Documentos",
+                category: "servicos",
+                price: 50,
+                description: "Digitalização de documentos por página",
+                image: "imag/digi.png",//caminho da imagem
+                perPage: true
+            },
+            {
+                id: 15,
+                name: "Carimbo Personalizado",
+                category: "timbragem",
+                price: 3200,
+                description: "Carimbo com seu nome ou logotipo",
+                image: "imag/camiseta.jpg",//caminho da imagem
+                custom: true
+            },
+            
+        ];
+
+        // Carrinho de compras
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
+        // ========== MENU MOBILE ==========
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mainNav = document.getElementById('mainNav');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mainNav.querySelector('ul').classList.toggle('active');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (icon.classList.contains('fa-bars')) {
+                icon.classList.replace('fa-bars', 'fa-times');
+            } else {
+                icon.classList.replace('fa-times', 'fa-bars');
+            }
+        });
+        
+        // ========== SISTEMA DE CARRINHO ==========
+        const openCartBtn = document.getElementById('openCart');
+        const closeCartBtn = document.getElementById('closeCart');
+        const cartSidebar = document.getElementById('cartSidebar');
+        const cartOverlay = document.getElementById('cartOverlay');
+        const cartCount = document.getElementById('cartCount');
+        const cartItemsContainer = document.getElementById('cartItems');
+        const cartTotalElement = document.getElementById('cartTotal');
+        const clearCartBtn = document.getElementById('clearCart');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        const printReceiptBtn = document.getElementById('printReceiptBtn');
+        
+        // Função para formatar valores em Kz
+        function formatCurrency(value) {
+            return `Kz ${value.toFixed(2).replace('.', ',')}`;
+        }
+        
+        // Abrir/fechar carrinho
+        openCartBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            cartSidebar.classList.add('active');
+            cartOverlay.classList.add('active');
+            updateCartDisplay();
+        });
+        
+        closeCartBtn.addEventListener('click', () => {
+            cartSidebar.classList.remove('active');
+            cartOverlay.classList.remove('active');
+        });
+        
+        cartOverlay.addEventListener('click', () => {
+            cartSidebar.classList.remove('active');
+            cartOverlay.classList.remove('active');
+        });
+        
+        // Atualizar contador do carrinho
+        function updateCartCount() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+        }
+        
+        // Atualizar exibição do carrinho
+        function updateCartDisplay() {
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: #666;">
+                        <i class="fas fa-shopping-cart" style="font-size: 3rem; margin-bottom: 20px; color: #ddd;"></i>
+                        <p>Seu carrinho está vazio</p>
+                    </div>
+                `;
+                cartTotalElement.textContent = formatCurrency(0);
+                return;
+            }
+            
+            let itemsHTML = '';
+            let total = 0;
+            
+            cart.forEach((item, index) => {
+                const product = products.find(p => p.id === item.id);
+                const itemTotal = product.price * item.quantity;
+                total += itemTotal;
+                
+                itemsHTML += `
+                    <div class="cart-item">
+                        <div class="cart-item-image">
+                            <img src="${product.image || 'imag/produto-padrao.jpg'}" alt="${product.name}" style="width:100%; heigth:100%;object-fit:cover;" onerror="this.src='imag/produto-padrao.jpg'">
+                        </div>
+                        <div class="cart-item-details">
+                            <div class="cart-item-title">${product.name}</div>
+                            <div class="cart-item-price">${formatCurrency(product.price)}</div>
+                            <div class="cart-item-actions">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn" onclick="decreaseQuantity(${index})">-</button>
+                                    <span class="quantity">${item.quantity}</span>
+                                    <button class="quantity-btn" onclick="increaseQuantity(${index})">+</button>
+                                </div>
+                                <button class="remove-item" onclick="removeFromCart(${index})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            cartItemsContainer.innerHTML = itemsHTML;
+            cartTotalElement.textContent = formatCurrency(total);
+        }
+        
+        // Adicionar produto ao carrinho
+        function addToCart(productId) {
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    id: productId,
+                    quantity: 1
+                });
+            }
+            
+            // Salvar no localStorage
+            localStorage.setItem('cart', JSON.stringify(cart));
+            
+            // Atualizar exibições
+            updateCartCount();
+            updateCartDisplay();
+            
+            // Mostrar notificação
+            showNotification('Produto adicionado ao carrinho!');
+        }
+        
+        // Remover produto do carrinho
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            updateCartDisplay();
+        }
+        
+        // Aumentar quantidade
+        function increaseQuantity(index) {
+            cart[index].quantity += 1;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            updateCartDisplay();
+        }
+        
+        // Diminuir quantidade
+        function decreaseQuantity(index) {
+            if (cart[index].quantity > 1) {
+                cart[index].quantity -= 1;
+            } else {
+                cart.splice(index, 1);
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            updateCartDisplay();
+        }
+        
+        // Limpar carrinho
+        clearCartBtn.addEventListener('click', () => {
+            if (cart.length === 0) return;
+            
+            if (confirm('Tem certeza que deseja limpar o carrinho?')) {
+                cart = [];
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartCount();
+                updateCartDisplay();
+            }
+        });
+        
+        // ========== CATÁLOGO DE PRODUTOS ==========
+        const productsGrid = document.getElementById('productsGrid');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        /* Função para obter ícone do produto
+        
+        
+        function getProductIcon(category) {
+            switch(category) {
+                case 'timbragem': return 'tshirt';
+                case 'papelaria': return 'file-alt';
+                case 'servicos': return 'print';
+                case 'design': return 'paint-brush';
+                default: return 'box';
+            }
+        }*/
+        
+        // Carregar produtos
+        function loadProducts(filter = 'all') {
+            productsGrid.innerHTML = '';
+            
+            const filteredProducts = filter === 'all' 
+                ? products 
+                : products.filter(product => product.category === filter);
+            
+            filteredProducts.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                
+                productCard.innerHTML = `
+                    <div class="product-image">
+                       <img src="${product.image || 'imag/produto-padrao.jpg'}" alt="${product.name}" onerror="this.src='imag/produto-padrao.jpg'">
+                    </div>
+                    <div class="product-details">
+                        <div class="product-category">${product.category.toUpperCase()}</div>
+                        <div class="product-title">${product.name}</div>
+                        <div class="product-description">${product.description}</div>
+                        <div class="product-price">
+                            ${formatCurrency(product.price)}
+                            ${product.perPage ? '<span>/página</span>' : ''}
+                            ${product.perItem ? '<span>/unidade</span>' : ''}
+                            ${product.quantity ? `<span>(${product.quantity} unidades)</span>` : ''}
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn-add-to-cart" onclick="addToCart(${product.id})">
+                                <i class="fas fa-cart-plus"></i> Adicionar
+                            </button>
+                            <button class="btn-quick-view" onclick="viewProduct(${product.id})">
+                                <i class="fas fa-eye"></i> Detalhes
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                productsGrid.appendChild(productCard);
+            });
+        }
+        
+        // Filtros de produtos
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class de todos os botões
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // Adiciona active class ao botão clicado
+                button.classList.add('active');
+                // Carrega produtos com o filtro selecionado
+                loadProducts(button.dataset.filter);
+            });
+        });
+        
+        // Visualizar produto
+        function viewProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            
+            let details = `Detalhes do produto:\n\n`;
+            details += `Nome: ${product.name}\n`;
+            details += `Descrição: ${product.description}\n`;
+            details += `Preço: ${formatCurrency(product.price)}\n`;
+            
+            if (product.sizes) details += `Tamanhos: ${product.sizes.join(', ')}\n`;
+            if (product.colors) details += `Cores: ${product.colors.join(', ')}\n`;
+            if (product.quantity) details += `Quantidade mínima: ${product.quantity} unidades\n`;
+            if (product.perPage) details += `Preço por página\n`;
+            if (product.perItem) details += `Preço por unidade\n`;
+            
+            alert(details);
+        }
+        
+        // ========== IMPRESSÃO DE RECIBO ==========
+        const receiptModal = document.getElementById('receiptModal');
+        const receiptContent = document.getElementById('receiptContent');
+        
+        // Gerar recibo
+        function generateReceipt() {
+            if (cart.length === 0) {
+                alert('Seu carrinho está vazio. Adicione produtos antes de gerar um recibo.');
+                return;
+            }
+            
+            // Fechar carrinho
+            cartSidebar.classList.remove('active');
+            cartOverlay.classList.remove('active');
+            
+            // Calcular total
+            const total = cart.reduce((sum, item) => {
+                const product = products.find(p => p.id === item.id);
+                return sum + (product.price * item.quantity);
+            }, 0);
+            
+            // Gerar número do recibo
+            const receiptNumber = 'RC' + Date.now().toString().slice(-8);
+            const currentDate = new Date().toLocaleDateString('pt-AO', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Gerar conteúdo do recibo
+            let receiptHTML = `
+                <div class="receipt-header">
+                    <h2>Gráfica ZAMUMBA</h2>
+                    <p>Gráfica & Cyber Cafe</p>
+                    <p>Cuanza Sul, Angola | Tel: +244 923 456 789</p>
+                    <p>Email: info@graficazamumba.com | NIF: 541234567LA001</p>
+                </div>
+                
+                <div class="receipt-info">
+                    <div class="row">
+                        <div class="label">Nº do Recibo:</div>
+                        <div>${receiptNumber}</div>
+                    </div>
+                    <div class="row">
+                        <div class="label">Data:</div>
+                        <div>${currentDate}</div>
+                    </div>
+                    <div class="row">
+                        <div class="label">Cliente:</div>
+                        <div>Cliente Geral</div>
+                    </div>
+                </div>
+                
+                <div class="receipt-items">
+                    <table class="receipt-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantidade</th>
+                                <th>Preço Unit.</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                const itemTotal = product.price * item.quantity;
+                
+                receiptHTML += `
+                    <tr>
+                        <td>${product.name}</td>
+                        <td>${item.quantity}</td>
+                        <td>${formatCurrency(product.price)}</td>
+                        <td>${formatCurrency(itemTotal)}</td>
+                    </tr>
+                `;
+            });
+            
+            receiptHTML += `
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="receipt-total">
+                    <div class="row">
+                        <div class="label">Subtotal:</div>
+                        <div>${formatCurrency(total)}</div>
+                    </div>
+                    <div class="row">
+                        <div class="label">IVA (14%):</div>
+                        <div>${formatCurrency(total * 0.14)}</div>
+                    </div>
+                    <div class="row" style="font-size: 1.3rem; margin-top: 10px;">
+                        <div class="label">TOTAL A PAGAR:</div>
+                        <div><strong>${formatCurrency(total * 1.14)}</strong></div>
+                    </div>
+                </div>
+                
+                <div class="receipt-footer">
+                    <p>Obrigado pela sua preferência!</p>
+                    <p>Este recibo é válido como documento fiscal.</p>
+                    <p>Para reclamações: +244 923 456 789</p>
+                </div>
+            `;
+            
+            receiptContent.innerHTML = receiptHTML;
+            receiptModal.style.display = 'flex';
+            
+            // Salvar dados do recibo para PDF
+            window.lastReceiptData = {
+                number: receiptNumber,
+                date: currentDate,
+                items: [...cart],
+                total: total * 1.14,
+                vat: total * 0.14
+            };
+        }
+        
+        // Botão imprimir recibo no carrinho
+        printReceiptBtn.addEventListener('click', generateReceipt);
+        
+        // Botão imprimir recibo no modal
+        document.getElementById('printReceipt').addEventListener('click', () => {
+            window.print();
+        });
+        
+        // Fechar recibo
+        document.getElementById('closeReceipt').addEventListener('click', () => {
+            receiptModal.style.display = 'none';
+        });
+        
+        // Gerar PDF do recibo
+        document.getElementById('downloadPDF').addEventListener('click', generatePDFReceipt);
+        
+        function generatePDFReceipt() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const receiptData = window.lastReceiptData || {
+                number: 'RC' + Date.now().toString().slice(-8),
+                date: new Date().toLocaleDateString('pt-AO'),
+                items: cart,
+                total: cart.reduce((sum, item) => {
+                    const product = products.find(p => p.id === item.id);
+                    return sum + (product.price * item.quantity);
+                }, 0) * 1.14,
+                vat: cart.reduce((sum, item) => {
+                    const product = products.find(p => p.id === item.id);
+                    return sum + (product.price * item.quantity);
+                }, 0) * 0.14
+            };
+            
+            // Cabeçalho
+            doc.setFontSize(20);
+            doc.setTextColor(200, 16, 46);
+            doc.text("Gráfica ZAMUMBA & Cyber Cafe", 105, 20, null, null, 'center');
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text("Gráfica ZAMUMBA & Cyber Cafe", 105, 30, null, null, 'center');
+            doc.text("Cuanza-Sul, Angola | Tel: +244 923 456 789", 105, 36, null, null, 'center');
+            doc.text("NIF: 541234567LA001", 105, 42, null, null, 'center');
+            
+            // Linha divisória
+            doc.setDrawColor(200, 16, 46);
+            doc.setLineWidth(0.5);
+            doc.line(20, 50, 190, 50);
+            
+            // Informações do recibo
+            doc.setFontSize(14);
+            doc.text("RECIBO DE VENDA", 105, 60, null, null, 'center');
+            
+            doc.setFontSize(10);
+            doc.text(`Nº do Recibo: ${receiptData.number}`, 20, 70);
+            doc.text(`Data: ${receiptData.date}`, 20, 76);
+            doc.text(`Cliente: Cliente Geral`, 20, 82);
+            
+            // Tabela de itens
+            let yPos = 95;
+            doc.setFontSize(10);
+            doc.setFillColor(240, 244, 248);
+            doc.rect(20, yPos - 5, 170, 7, 'F');
+            
+            doc.setTextColor(200, 16, 46);
+            doc.text("Item", 25, yPos);
+            doc.text("Qtd", 100, yPos);
+            doc.text("Preço Unit.", 130, yPos);
+            doc.text("Total", 170, yPos, null, null, 'right');
+            
+            doc.setTextColor(0, 0, 0);
+            yPos += 10;
+            
+            let subtotal = 0;
+            receiptData.items.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                const itemTotal = product.price * item.quantity;
+                subtotal += itemTotal;
+                
+                doc.text(product.name.substring(0, 30), 25, yPos);
+                doc.text(item.quantity.toString(), 100, yPos);
+                doc.text(formatCurrency(product.price), 130, yPos);
+                doc.text(formatCurrency(itemTotal), 170, yPos, null, null, 'right');
+                yPos += 7;
+            });
+            
+            // Totais
+            yPos += 10;
+            doc.setDrawColor(200, 16, 46);
+            doc.line(100, yPos, 170, yPos);
+            yPos += 10;
+            
+            doc.text("Subtotal:", 130, yPos);
+            doc.text(formatCurrency(subtotal), 170, yPos, null, null, 'right');
+            yPos += 7;
+            
+            doc.text("IVA (14%):", 130, yPos);
+            doc.text(formatCurrency(subtotal * 0.14), 170, yPos, null, null, 'right');
+            yPos += 10;
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text("TOTAL A PAGAR:", 130, yPos);
+            doc.text(formatCurrency(subtotal * 1.14), 170, yPos, null, null, 'right');
+            
+            // Rodapé
+            yPos += 20;
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(100, 100, 100);
+            doc.text("Obrigado pela sua preferência!", 105, yPos, null, null, 'center');
+            doc.text("Este recibo é válido como documento fiscal.", 105, yPos + 6, null, null, 'center');
+            doc.text("Para reclamações: +244 923 456 789", 105, yPos + 12, null, null, 'center');
+            
+            // Salvar PDF
+            doc.save(`Recibo_${receiptData.number}.pdf`);
+        }
+        
+        // ========== CHECKOUT ==========
+        const checkoutModal = document.getElementById('checkoutModal');
+        const finalConfirmationModal = document.getElementById('finalConfirmationModal');
+        const deliveryMethodSelect = document.getElementById('deliveryMethod');
+        const deliveryAddressSection = document.getElementById('deliveryAddressSection');
+        const orderSummary = document.getElementById('orderSummary');
+        const orderTotal = document.getElementById('orderTotal');
+        const orderDetails = document.getElementById('orderDetails');
+        const orderNumber = document.getElementById('orderNumber');
+        const openWhatsAppOrderBtn = document.getElementById('openWhatsAppOrder');
+        const viewReceiptFinalBtn = document.getElementById('viewReceiptFinal');
+        
+        // Mostrar informações bancárias quando selecionar transferência
+        document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const bankInfo = document.getElementById('bankInfo');
+                if (this.value === 'transferencia') {
+                    bankInfo.style.display = 'block';
+                } else {
+                    bankInfo.style.display = 'none';
+                }
+            });
+        });
+        
+        // Mostrar/ocultar endereço de entrega
+        deliveryMethodSelect.addEventListener('change', function() {
+            if (this.value === 'entrega_luanda' || this.value === 'entrega_outra') {
+                deliveryAddressSection.style.display = 'block';
+            } else {
+                deliveryAddressSection.style.display = 'none';
+            }
+        });
+        
+        // Variáveis para controle do checkout
+        let currentStep = 1;
+        let orderData = {};
+        
+        // Abrir checkout
+        checkoutBtn.addEventListener('click', () => {
+            if (cart.length === 0) {
+                alert('Seu carrinho está vazio. Adicione produtos antes de finalizar a compra.');
+                return;
+            }
+            
+            // Fechar carrinho
+            cartSidebar.classList.remove('active');
+            cartOverlay.classList.remove('active');
+            
+            // Abrir modal de checkout
+            checkoutModal.style.display = 'flex';
+            
+            // Resetar steps
+            currentStep = 1;
+            updateCheckoutSteps();
+            
+            // Preencher resumo do pedido
+            updateOrderSummary();
+        });
+        
+        // Atualizar passos do checkout
+        function updateCheckoutSteps() {
+            // Resetar todos os steps
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active', 'completed');
+            });
+            
+            // Atualizar steps de acordo com o passo atual
+            for (let i = 1; i <= 3; i++) {
+                const step = document.getElementById(`step${i}`);
+                if (i < currentStep) {
+                    step.classList.add('completed');
+                } else if (i === currentStep) {
+                    step.classList.add('active');
+                }
+            }
+            
+            // Mostrar/ocultar formulários
+            document.querySelectorAll('.checkout-form').forEach(form => {
+                form.style.display = 'none';
+            });
+            document.getElementById(`checkoutStep${currentStep}`).style.display = 'block';
+        }
+        
+        // Atualizar resumo do pedido
+        function updateOrderSummary() {
+            let summaryHTML = '';
+            let total = 0;
+            
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                const itemTotal = product.price * item.quantity;
+                total += itemTotal;
+                
+                summaryHTML += `
+                    <div class="summary-item">
+                        <span>${product.name} x${item.quantity}</span>
+                        <span>${formatCurrency(itemTotal)}</span>
+                    </div>
+                `;
+            });
+            
+            // Adicionar custo de entrega se aplicável
+            const deliveryMethod = deliveryMethodSelect.value;
+            if (deliveryMethod === 'entrega_luanda') {
+                summaryHTML += `
+                    <div class="summary-item">
+                        <span>Entrega (Luanda)</span>
+                        <span>+ Kz 1.000,00</span>
+                    </div>
+                `;
+                total += 1000;
+            }
+            
+            // Adicionar IVA (14%)
+            const vat = total * 0.14;
+            summaryHTML += `
+                <div class="summary-item">
+                    <span>IVA (14%)</span>
+                    <span>${formatCurrency(vat)}</span>
+                </div>
+            `;
+            
+            const totalWithVat = total * 1.14;
+            
+            orderSummary.innerHTML = summaryHTML;
+            orderTotal.textContent = formatCurrency(totalWithVat);
+        }
+        
+        // Navegação entre passos
+        document.getElementById('nextStep1').addEventListener('click', () => {
+            // Validar dados do passo 1
+            const name = document.getElementById('customerName').value;
+            const email = document.getElementById('customerEmail').value;
+            const phone = document.getElementById('customerPhone').value;
+            
+            if (!name || !email || !phone) {
+                alert('Por favor, preencha todos os campos, obrigatórios.');
+                return;
+            }
+            
+            // Salvar dados
+            orderData = {
+                ...orderData,
+                customerName: name,
+                customerEmail: email,
+                customerPhone: phone,
+                customerNIF: document.getElementById('customerNIF').value,
+                deliveryMethod: deliveryMethodSelect.value
+            };
+            
+            const deliveryMethod = deliveryMethodSelect.value;
+            if (deliveryMethod === 'entrega_luanda' || deliveryMethod === 'entrega_outra') {
+                const address = document.getElementById('address').value;
+                const addressNumber = document.getElementById('addressNumber').value;
+                const bairro = document.getElementById('bairro').value;
+                const municipio = document.getElementById('municipio').value;
+                const provincia = document.getElementById('provincia').value;
+                
+                if (!address || !addressNumber || !bairro || !municipio || !provincia) {
+                    alert('Por favor, preencha todos os campos de endereço.');
+                    return;
+                }
+                
+                orderData.address = address;
+                orderData.addressNumber = addressNumber;
+                orderData.bairro = bairro;
+                orderData.municipio = municipio;
+                orderData.provincia = provincia;
+            }
+            
+            // Atualizar resumo com entrega
+            updateOrderSummary();
+            
+            // Ir para próximo passo
+            currentStep = 2;
+            updateCheckoutSteps();
+        });
+        
+        document.getElementById('prevStep2').addEventListener('click', () => {
+            currentStep = 1;
+            updateCheckoutSteps();
+        });
+        
+        document.getElementById('nextStep2').addEventListener('click', () => {
+            // Validar método de pagamento
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+            
+            if (!paymentMethod) {
+                alert('Por favor, selecione um método de pagamento.');
+                return;
+            }
+            
+            // Salvar dados
+            orderData.paymentMethod = paymentMethod.value;
+            
+            // Atualizar detalhes do pedido
+            updateOrderDetails();
+            
+            // Ir para próximo passo
+            currentStep = 3;
+            updateCheckoutSteps();
+        });
+        
+        document.getElementById('prevStep3').addEventListener('click', () => {
+            currentStep = 2;
+            updateCheckoutSteps();
+        });
+        
+        // Atualizar detalhes do pedido para confirmação
+        function updateOrderDetails() {
+            let detailsHTML = '';
+            let total = 0;
+            
+            // Itens do pedido
+            detailsHTML += '<h5>Itens do Pedido:</h5>';
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                const itemTotal = product.price * item.quantity;
+                total += itemTotal;
+                
+                detailsHTML += `<p>${product.name} - ${item.quantity} x ${formatCurrency(product.price)} = ${formatCurrency(itemTotal)}</p>`;
+            });
+            
+            // Entrega
+            const deliveryMethod = orderData.deliveryMethod;
+            if (deliveryMethod === 'entrega_luanda') {
+                detailsHTML += `<p><strong>Entrega (Luanda):</strong> + Kz 1.000,00</p>`;
+                total += 1000;
+            } else if (deliveryMethod === 'entrega_outra') {
+                detailsHTML += `<p><strong>Entrega (Outra Província):</strong> A consultar</p>`;
+            }
+            
+            // IVA
+            const vat = total * 0.14;
+            detailsHTML += `<p><strong>IVA (14%):</strong> ${formatCurrency(vat)}</p>`;
+            
+            const totalWithVat = total * 1.14;
+            detailsHTML += `<p><strong>Total com IVA:</strong> ${formatCurrency(totalWithVat)}</p>`;
+            
+            // Informações do cliente
+            detailsHTML += '<h5 style="margin-top: 20px;">Informações do Cliente:</h5>';
+            detailsHTML += `<p><strong>Nome:</strong> ${orderData.customerName}</p>`;
+            detailsHTML += `<p><strong>Telefone:</strong> ${orderData.customerPhone}</p>`;
+            detailsHTML += `<p><strong>E-mail:</strong> ${orderData.customerEmail}</p>`;
+            if (orderData.customerNIF) {
+                detailsHTML += `<p><strong>NIF:</strong> ${orderData.customerNIF}</p>`;
+            }
+            
+            // Entrega
+            detailsHTML += '<h5 style="margin-top: 20px;">Entrega:</h5>';
+            if (deliveryMethod === 'retirada') {
+                detailsHTML += `<p><strong>Método:</strong> Retirada na Loja</p>`;
+            } else {
+                detailsHTML += `<p><strong>Método:</strong> Entrega</p>`;
+                detailsHTML += `<p><strong>Endereço:</strong> ${orderData.address}, ${orderData.addressNumber}</p>`;
+                detailsHTML += `<p><strong>Bairro:</strong> ${orderData.bairro}</p>`;
+                detailsHTML += `<p><strong>Município:</strong> ${orderData.municipio}</p>`;
+                detailsHTML += `<p><strong>Província:</strong> ${orderData.provincia}</p>`;
+            }
+            
+            // Pagamento
+            detailsHTML += '<h5 style="margin-top: 20px;">Pagamento:</h5>';
+            let paymentText = '';
+            switch(orderData.paymentMethod) {
+                case 'dinheiro': paymentText = 'Dinheiro (na retirada/entrega)'; break;
+                case 'transferencia': paymentText = 'Transferência Bancária'; break;
+                case 'pix': paymentText = 'PIX Angola'; break;
+            }
+            detailsHTML += `<p><strong>Método:</strong> ${paymentText}</p>`;
+            
+            orderDetails.innerHTML = detailsHTML;
+        }
+        
+        // Confirmar pedido
+        document.getElementById('confirmOrder').addEventListener('click', () => {
+            // Salvar observações
+            orderData.notes = document.getElementById('orderNotes').value;
+            
+            // Gerar número do pedido
+            const orderNum = 'PED' + Date.now().toString().slice(-6);
+            orderNumber.textContent = `#${orderNum}`;
+            orderData.orderNumber = orderNum;
+            orderData.date = new Date().toISOString();
+            orderData.cart = [...cart];
+            
+            // Calcular total
+            let total = 0;
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                total += product.price * item.quantity;
+            });
+            
+            if (orderData.deliveryMethod === 'entrega_luanda') {
+                total += 1000;
+            }
+            
+            orderData.subtotal = total;
+            orderData.vat = total * 0.14;
+            orderData.total = total * 1.14;
+            
+            // Salvar pedido no localStorage
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            orders.push(orderData);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            
+            // Limpar carrinho
+            cart = [];
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            updateCartDisplay();
+            
+            // Fechar modal de checkout
+            checkoutModal.style.display = 'none';
+            
+            // Mostrar confirmação final
+            finalConfirmationModal.style.display = 'flex';
+            
+            // Configurar botão do WhatsApp
+            const phoneNumber = "244926589429"; // Número angolano
+            const message = `Olá, acabei de fazer um pedido no site da Gráfica ZAMUMBA!%0A%0A` +
+                           `*Número do Pedido:* ${orderNum}%0A` +
+                           `*Cliente:* ${orderData.customerName}%0A` +
+                           `*Telefone:* ${orderData.customerPhone}%0A` +
+                           `*Total:* ${formatCurrency(orderData.total)}%0A%0A` +
+                           `Por favor, entre em contato para confirmar o pedido.`;
+            
+            openWhatsAppOrderBtn.dataset.whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+            
+            // Salvar dados para recibo
+            window.lastReceiptData = {
+                number: orderNum,
+                date: new Date().toLocaleDateString('pt-AO'),
+                items: orderData.cart,
+                total: orderData.total,
+                vat: orderData.vat,
+                customerName: orderData.customerName,
+                customerNIF: orderData.customerNIF
+            };
+        });
+        
+        // Botão para ver recibo na confirmação final
+        viewReceiptFinalBtn.addEventListener('click', () => {
+            finalConfirmationModal.style.display = 'none';
+            generateReceipt();
+        });
+        
+        // Fechar modais
+        document.getElementById('closeFinalModal').addEventListener('click', () => {
+            finalConfirmationModal.style.display = 'none';
+        });
+        
+        openWhatsAppOrderBtn.addEventListener('click', () => {
+            const url = openWhatsAppOrderBtn.dataset.whatsappUrl;
+            if (url) {
+                window.open(url, '_blank');
+            }
+        });
+        
+        // Fechar modais clicando fora
+        window.addEventListener('click', (e) => {
+            if (e.target === checkoutModal) {
+                checkoutModal.style.display = 'none';
+            }
+            if (e.target === finalConfirmationModal) {
+                finalConfirmationModal.style.display = 'none';
+            }
+            if (e.target === receiptModal) {
+                receiptModal.style.display = 'none';
+            }
+        });
+        
+        // ========== FUNÇÕES AUXILIARES ==========
+        
+        // Mostrar notificação
+        function showNotification(message) {
+            // Criar elemento de notificação
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: #009739;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 5px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                z-index: 10000;
+                animation: slideIn 0.3s, fadeOut 0.3s 2.7s;
+            `;
+            
+            notification.innerHTML = `
+                <i class="fas fa-check-circle" style="margin-right: 10px;"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remover após 3 segundos
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Adicionar estilos de animação
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+            
+            @media print {
+                body * {
+                    visibility: hidden;
+                }
+                .receipt-container, .receipt-container * {
+                    visibility: visible;
+                }
+                .receipt-container {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    box-shadow: none;
+                }
+                .receipt-actions {
+                    display: none !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // ========== INICIALIZAÇÃO ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            // Carregar produtos
+            loadProducts();
+            
+            // Atualizar contador do carrinho
+            updateCartCount();
+            
+            // Configurar data mínima para entrega (amanhã)
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const minDate = tomorrow.toISOString().split('T')[0];
+            document.getElementById('preferredDate')?.setAttribute('min', minDate);
+            
+            // Carregar pedidos salvos (para demonstração)
+            console.log('Pedidos salvos:', JSON.parse(localStorage.getItem('orders') || '[]'));
+        });
+    </script>
+</body>
+</html>
